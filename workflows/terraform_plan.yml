@@ -1,0 +1,43 @@
+name: Terraform Plan
+on: [pull_request]
+
+jobs:
+  on-pull-request:
+    name: On Pull Request
+    runs-on: ubuntu-latest
+    steps:
+    - name: Filter to PR Opened
+      uses: actions/bin/filter@master
+      with:
+        args: "action 'opened|synchronize|rerequested'"
+
+    - name: Checkout Repo
+      uses: actions/checkout@v1
+
+    - name: Terraform - Format
+      uses: hashicorp/terraform-github-actions/fmt@v0.3.7
+      env:
+        TF_ACTION_WORKING_DIR: "./aws_terraform"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Terraform - Init
+      uses: hashicorp/terraform-github-actions/init@v0.3.7
+      env:
+        TF_ACTION_WORKING_DIR: "./aws_terraform"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Terraform - Validate
+      uses: hashicorp/terraform-github-actions/validate@v0.3.7
+      env:
+        TF_ACTION_WORKING_DIR: "./aws_terraform"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Terraform - Plan
+      uses: hashicorp/terraform-github-actions/plan@v0.3.7
+      env:
+        TF_ACTION_WORKING_DIR: "./aws_terraform"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
