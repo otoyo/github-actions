@@ -8,22 +8,27 @@ jobs:
   on-merged:
     name: On Push to master
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./aws_terraform
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v1
 
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-1
+
+    - name: Terraform - Setup
+      uses: hashicorp/setup-terraform@v1
+
     - name: Terraform - Init
-      uses: hashicorp/terraform-github-actions/init@v0.3.7
-      env:
-        TF_ACTION_WORKING_DIR: "./aws_terraform"
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      id: init
+      run: terraform init
 
     - name: Terraform - Apply
-      uses: hashicorp/terraform-github-actions/apply@v0.3.7
-      env:
-        TF_ACTION_WORKING_DIR: "./aws_terraform"
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      id: apply
+      run: terraform apply -auto-approve -no-color
